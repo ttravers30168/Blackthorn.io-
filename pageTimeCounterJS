@@ -1,0 +1,151 @@
+import { LightningElement, track,api,wire } from 'lwc';
+import totalMinutesFinal from '@salesforce/apex/RecordDetailTimeCounter.totalMinutesFinal';
+import { updateRecord } from 'lightning/uiRecordApi'
+export default class PageTimeCounter extends LightningElement {
+    @track showStartBtn = true;
+    @api recordId;
+    @track timeVal = '0:0:0';
+    @track hours ;
+    @track minutes;
+    @track seconds;
+    @track milliseconds;
+    timeIntervalInstance;
+    totalMilliseconds = 0;
+    @track pageUrl;
+    @track optyRecordId;
+    
+    _handler;
+    
+    start(event) { 
+        console.log('==='+this.recordId);
+        this.optyRecordId=this.recordId;
+        console.log('==='+this.optyRecordId);
+        this.showStartBtn = false;
+        var parentThis = this;
+        
+        // Run timer code in every 100 milliseconds
+        this.timeIntervalInstance = setInterval(function() {
+            
+            // Time calculations for hours, minutes, seconds and milliseconds
+            var hours = Math.floor((parentThis.totalMilliseconds % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((parentThis.totalMilliseconds % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((parentThis.totalMilliseconds % (1000 * 60)) / 1000);
+            var milliseconds = Math.floor((parentThis.totalMilliseconds % (1000)));
+            
+            parentThis.hours=hours;
+            parentThis.minutes =minutes ; 
+            parentThis.seconds =seconds ;
+            parentThis.milliseconds =milliseconds ;
+            
+            
+            // Output the result in the timeVal variable
+            parentThis.timeVal = hours + ":" + minutes + ":" + seconds;   
+            
+            parentThis.totalMilliseconds += 100;
+        }, 100);
+    }
+    
+    stop(event) {
+        this.showStartBtn = true;
+        this.timeVal = '0:0:0';
+        this.totalMilliseconds = 0;
+        clearInterval(this.timeIntervalInstance);
+        
+        totalMinutesFinal({h:this.hours,m:this.minutes,s:this.seconds,ms:this.milliseconds,optyId:this.recordId})
+            .then(result => {
+                console.log('=R2='+(result));
+                eval("$A.get('e.force:refreshView').fire();");
+            })
+            .catch(error => {
+                console.log('=R='+(error))
+                    this.error = error;
+            });
+    }
+    
+    reset(event) {
+        this.showStartBtn = true;
+        this.timeVal = '0:0:0';
+        this.totalMilliseconds = 0;
+        clearInterval(this.timeIntervalInstance);
+    }
+    
+    connectedCallback() {
+        
+        this.pageUrl=window.location.href;
+        document.addEventListener('click', this._handler = this.close.bind(this));
+        window.addEventListener('beforeunload', this.beforeUnloadHandler.bind(this));
+        window.addEventListener("popstate", () => {
+        console.log('==BackButtonClicked3=='+this.optyRecordId);
+        if(this.recordId==this.optyRecordId&&this.showStartBtn==false)
+        {
+            console.log('==BackButtonClicked===');
+            this.showStartBtn = true;
+            this.timeVal = '0:0:0';
+            this.totalMilliseconds = 0;
+            clearInterval(this.timeIntervalInstance);
+            
+            totalMinutesFinal({h:this.hours,m:this.minutes,s:this.seconds,ms:this.milliseconds,optyId:this.recordId})
+                .then(result => {
+                    console.log('=R2='+(result));
+                    eval("$A.get('e.force:refreshView').fire();");
+                })
+                .catch(error => {
+                    console.log('=R='+(error))
+                        this.error = error;
+                });
+        }
+
+        });
+        
+    }
+    
+    
+    close() { 
+        if(this.pageUrl!=window.location.href&&this.showStartBtn==false)
+        {
+            console.log('==Redirected==to===Other===');
+            this.showStartBtn = true;
+            this.timeVal = '0:0:0';
+            this.totalMilliseconds = 0;
+            clearInterval(this.timeIntervalInstance);
+            
+            totalMinutesFinal({h:this.hours,m:this.minutes,s:this.seconds,ms:this.milliseconds,optyId:this.recordId})
+                .then(result => {
+                    console.log('=R2='+(result));
+                    eval("$A.get('e.force:refreshView').fire();");
+                })
+                .catch(error => {
+                    console.log('=R='+(error))
+                        this.error = error;
+                });
+        }
+        else
+        {
+            console.log('==Same Page===');
+        }
+        
+    }
+    
+    beforeUnloadHandler(event) {
+        console.log('==END==');
+        if(this.showStartBtn==false)
+        {
+            this.showStartBtn = true;
+        this.timeVal = '0:0:0';
+        this.totalMilliseconds = 0;
+        clearInterval(this.timeIntervalInstance);
+        
+        totalMinutesFinal({h:this.hours,m:this.minutes,s:this.seconds,ms:this.milliseconds,optyId:this.recordId})
+            .then(result => {
+                console.log('=R2='+(result));
+                eval("$A.get('e.force:refreshView').fire();");
+            })
+            .catch(error => {
+                console.log('=R='+(error))
+                    this.error = error;
+            });
+        }
+        
+        
+    }
+}
