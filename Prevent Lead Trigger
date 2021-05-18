@@ -1,5 +1,5 @@
 // This is a bulkified Trigger used to prevent creation of new leads in Salesforce Database
-Trigger PreventDupLead on Lead(before update) {
+Trigger PreventDupLead on Lead(after update) {
     
     List<Lead> totalMatchedLeads = new List<Lead>();
     Set<String> emailIds = new Set<String>();
