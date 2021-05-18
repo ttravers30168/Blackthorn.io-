@@ -1,3 +1,5 @@
+// This class is for Time Counter of LWC
+
 public class RecordDetailTimeCounter {
     
     @AuraEnabled
