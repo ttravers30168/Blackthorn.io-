@@ -1,4 +1,4 @@
-// This class is for Time Counter of LWC
+// This class is for Time Counter using LWC
 
 public class RecordDetailTimeCounter {
     
