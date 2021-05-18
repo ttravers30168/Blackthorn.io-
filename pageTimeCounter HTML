@@ -1,0 +1,21 @@
+<template>
+    <div style="background: white;padding: 20px;border-radius: 6px;">
+        <div style="font-weight: bold;padding: 6px;border: 1px solid rgb(34, 82, 123);margin-bottom: 10px;background-color: rgb(34, 82, 123);color: white;width: 201px;">
+            <div>
+                <svg focusable="false" data-key="date_time" style="fill:white;margin-top:-4px;" aria-hidden="true" viewBox="0 0 52 52" class="slds-icon slds-icon-text-default slds-icon_small"><g><path d="M43.6 6.8h-4V5.2c0-1.8-1.4-3.2-3.2-3.2-1.8 0-3.2 1.4-3.2 3.2v1.6H18.8V5.2c0-1.8-1.4-3.2-3.2-3.2s-3.2 1.4-3.2 3.2v1.6h-4c-2.6 0-4.8 2.2-4.8 4.8v1.6c0 .9.7 1.6 1.6 1.6h41.6c.9 0 1.6-.7 1.6-1.6v-1.6c0-2.6-2.2-4.8-4.8-4.8zM46.8 19.6H5.2c-.9 0-1.6.7-1.6 1.6v24c0 2.6 2.2 4.8 4.8 4.8h35.2c2.6 0 4.8-2.2 4.8-4.8v-24c0-.9-.7-1.6-1.6-1.6zM26 46.7c-6.6 0-11.9-5.4-11.9-11.9 0-6.6 5.4-11.9 11.9-11.9s11.9 5.4 11.9 11.9c0 6.6-5.3 11.9-11.9 11.9z"></path><path d="M27.2 34.3v-5.1c0-.4-.4-.8-.8-.8h-.8c-.4 0-.8.4-.8.8v5.6c0 .3.1.6.4.8l3.8 3.8c.3.3.8.3 1.1 0l.6-.6c.3-.3.3-.8 0-1.1l-3.5-3.4z"></path></g></svg>&nbsp;Detail Page Time Counter 
+            </div>
+            
+        </div>
+    <div style="font-size: 20px;text-align:center;">{timeVal}</div>
+
+        <div style="text-align:center;margin-top:10px;">
+        <!--Time Spent : {testVar2} -->
+        <template if:true={showStartBtn}>
+            <lightning-button label="Start" variant="success" class="startBtn" onclick={start} style="background-color: #4bca81; color: white;"></lightning-button>
+        </template>
+        <template if:false={showStartBtn}>
+            <lightning-button label="Stop" variant="destructive" onclick={stop} style="background-color: #c82e2e; color: white;"></lightning-button>
+        </template>
+        </div>
+    </div>
+</template>
