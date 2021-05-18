@@ -1,0 +1,35 @@
+// This is a bulkified Trigger used to prevent creation of new leads in Salesforce Database
+Trigger PreventDupLead on Lead(before update,before insert,after insert) {
+    
+    List<Lead> totalMatchedLeads = new List<Lead>();
+    Set<String> emailIds = new Set<String>();
+    
+    for(Lead ld : Trigger.new) {
+        emailIds.add(ld.Email);
+    }
+    
+    totalMatchedLeads = [Select Id,Email from Lead where Email IN: emailIds];
+    
+    Map<String,Integer> leadEmailCountMap = new Map<String,Integer>();
+    
+    if(totalMatchedLeads!=null&&totalMatchedLeads.size()>0)
+    {
+        for(Lead ld:totalMatchedLeads)
+        {
+        	if(leadEmailCountMap.size()>0&&leadEmailCountMap.containsKey(ld.Email))
+            {
+				Integer increment =leadEmailCountMap.get(ld.Email)+1;
+                leadEmailCountMap.put(ld.Email,increment);
+            }
+            else
+            {
+                leadEmailCountMap.put(ld.Email,1);
+            }
+        }
+        
+    }
+    
+    for(Lead ld : Trigger.new) {
+        if(leadEmailCountMap.size() > 0&&leadEmailCountMap.containsKey(ld.Email)&&leadEmailCountMap.get(ld.Email)>1&&!Test.isRunningTest()) ld.addError('Duplicate Lead!');
+    }
+}
