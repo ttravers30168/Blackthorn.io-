@@ -1,0 +1,32 @@
+// This is for renewal opportunity
+trigger renewalOpportunity on Opportunity (before insert,before update) {
+
+    String optyRenewalId = Schema.SObjectType.Opportunity.getRecordTypeInfosByName().get('Renewal').getRecordTypeId();
+    
+    Set<ID> accountIds=new Set<ID>();
+    
+    For(Opportunity p : Trigger.New){
+        if(p.AccountId!=null) accountIds.add(p.accountId);
+    }
+    
+    List<Account> acc = new List<Account>();
+    
+    if(accountIds!=null&&accountIds.size()>0) acc = [Select Id, Description__c FROM Account where Id IN: accountIds];
+    
+    Map<Id,String> accountDescription = new Map<Id,String>();
+    
+    if(acc.size()>0) 
+    {
+        for(Account a:acc) accountDescription.put(a.Id,a.Description__c);
+    }
+    
+    for(Opportunity p:trigger.new)
+    {
+        if(p.CloseDate < system.today()){
+            p.StageName='Closed Lost';
+            p.RecordTypeId=optyRenewalId;
+        }
+        p.Description__c= accountDescription.size()>0&&accountDescription.containsKey(p.AccountId)?accountDescription.get(p.AccountId):p.Description__c;
+    }
+    
+}
