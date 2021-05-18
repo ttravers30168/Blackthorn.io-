@@ -1,0 +1,113 @@
+@isTest
+public class Unit_Test {
+// This method is for covering Duplicate Lead Trigger - Coding Test #1: Apex - Task 1
+
+    private static testmethod void checkPreventLead()
+    {
+        Test.startTest();
+        
+        Lead ld = new Lead(FirstName='Test',LastName='Lead 1',Company='Company 1',Email='testlead1@test.com');
+        insert ld;
+        
+        Lead ld2=[Select Id,Name,Email from Lead where Id =: ld.Id];
+        
+        system.assertEquals(ld.Email, ld2.Email);
+        system.assertEquals(ld2.Name, ld.FirstName+' '+ld.LastName);
+        
+        Lead ld3 = new Lead(FirstName='Test',LastName='Lead 2',Company='Company 3',Email='testlead1@test.com');
+        insert ld3;
+        
+        Test.stopTest();
+    }
+ 
+ // This method is for renewal Opportunity Trigger - Coding Test #1: Apex - Task 2
+    private static testmethod void checkRenewalOpportunity()
+    {
+        Test.startTest();
+        
+        Account acc = new Account(Name='Company 1',Description__c='Description - 123');
+        insert acc;
+        
+        Opportunity opp = new Opportunity(Name=acc.Name+'-'+'Test Opportunity',CloseDate=System.today()-20,AccountId=acc.Id);
+        insert opp;
+        
+        Opportunity opp2 = [Select Id,Name,RecordTypeId,Description__c from Opportunity where Id =: opp.Id];
+        
+        String optyRenewalId = Schema.SObjectType.Opportunity.getRecordTypeInfosByName().get('Renewal').getRecordTypeId();
+        system.assertEquals(opp2.RecordTypeId, optyRenewalId);
+        
+        system.assertEquals(opp2.Description__c, acc.Description__c);
+        
+        Test.stopTest();
+    }
+    
+   // This method is for covering LWC Time counter - Coding Test #3: LWC (UI/JavaScript)
+
+    private static testmethod void checkTotalMinutesSpent()
+    {
+        Test.startTest();
+        Account acc = new Account(Name='Company 1',Description__c='Description - 123');
+        insert acc;
+        
+        Opportunity opp = new Opportunity(Name=acc.Name+'-'+'Test Opportunity',CloseDate=System.today()-20,AccountId=acc.Id);
+        insert opp;
+        
+        RecordDetailTimeCounter.totalMinutesFinal(0, 1, 0, 0, opp.Id);
+        
+        Opportunity opp2 = [Select Id,Name,RecordTypeId,Description__c,Minutes_Spent__c from Opportunity where Id =: opp.Id];
+        
+        system.assertEquals(opp2.Minutes_Spent__c, 1.00);
+        
+        Test.stopTest();
+    }
+ 
+ // This method is for REST API that creates Registration for an event in SF - Part 1: REST API
+
+    private static testmethod void checkEventRegistrationThroughAPI()
+    {
+        Test.startTest();
+        
+        Event__c ev = new Event__c();
+        ev.Name='Sample Event - 2021 May';
+        ev.Point_of_Contact__c=UserInfo.getUserId();
+        ev.Start_Date_Time__c=system.now();
+        ev.End_Date_Time__c=system.now()+100;
+        ev.Description__c='Sample Event Description';
+        ev.Event_Location__c='London';
+        ev.Note_to_Registrants__c='Test Notes to Attendees';
+        ev.Total_Seats_Available__c=100;
+        insert ev;
+        
+        Event__c ev2=[Select Id,Total_Seats_Available__c,Name from Event__c];
+        
+        system.assertEquals(ev2.Total_Seats_Available__c, 100);
+        
+        String response_1=RESTAPI_EventRegistration.doPost('Test', 'Lead2', 'test@test.com', ev2.Id);
+        
+       	Registration__c reg= [SELECT Id, Name, Email__c, Last_Name__c, First_Name__c, Attendee__c, Event__c, Status__c FROM Registration__c];
+        String expected_response_1='Registration Completed Successfully - With Reference Number : '+reg.Name;
+        system.assertEquals(expected_response_1, response_1);
+        
+        String response_2=RESTAPI_EventRegistration.doPost('Test', 'Lead2', 'test@test.com', ev2.Id);
+        String expected_response_2='You have registered already for this event - Your reference number  is '+reg.Name;
+        system.assertEquals(expected_response_2, response_2);
+        
+        String response_3=RESTAPI_EventRegistration.doPost('Test', '', '', ev2.Id);
+        String expected_response_3='Please Enter  \'Last Name\'  \'Email\' ';
+       
+        system.assertEquals(expected_response_3, response_3);
+        
+        Contact c = new Contact(FirstName='Test',LastName='Contact 2',Email='test2@test.com');
+        insert c;
+        
+        String response_4=RESTAPI_EventRegistration.doPost('Test', 'Lead2', 'test2@test.com', ev2.Id);
+        Registration__c reg2= [SELECT Id, Name, Email__c, Last_Name__c, First_Name__c, Attendee__c, Event__c, Status__c FROM Registration__c ORDER BY NAME DESC LIMIT 1];
+        String expected_response_4='Registration Completed Successfully - With Reference Number : '+reg2.Name;
+        
+        String response_5=RESTAPI_EventRegistration.doPost('Test', 'Lead2', 'test2@test.com', null);
+        String expected_response_5='Error Occurred in Salesforce - System.DmlException: Insert failed. First exception on row 0; first error: REQUIRED_FIELD_MISSING, Required fields are missing: [Event__c]: [Event__c]';
+        system.assertEquals(expected_response_5, response_5);
+            
+        Test.stopTest();
+    }
+}
