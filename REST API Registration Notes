@@ -1,0 +1,77 @@
+******************************EVENT REGISTRATION API SALESFORCE******************************************
+
+client_id=3MVG9cHH2bfKACZa1_BE2OoTcp9KoyeCf.P0TiR7Isig546SBQToycw8PvuM.0rfhplQ4MPaODC6b83qNI9Os
+client_secret=369AA8D2A7568974FC59A510543236738C25092C5FC32750CC701AE4E17446DA
+
+
+Authorization Code: (From UI - hit the below URL)
+https://connoisseurdesigns-dev-ed.my.salesforce.com/services/oauth2/authorize?response_type=code&client_id=3MVG9cHH2bfKACZa1_BE2OoTcp9KoyeCf.P0TiR7Isig546SBQToycw8PvuM.0rfhplQ4MPaODC6b83qNI9Os&redirect_uri=https://login.salesforce.com/
+
+Output/Response: get Authorization code in URL: https://login.salesforce.com/code=aPrxD8aRZGb_abqcFydHuUAb.8mMK5uDXbx5jw78QgsJnTL5JJBUgFU3YRkyR011mijdpxECNw%3D%3D
+************************************************************************
+
+Refresh Token:
+
+POST Request
+
+END POINT: https://connoisseurdesigns-dev-ed.my.salesforce.com/services/oauth2/token?code=aPrxD8aRZGb_abqcFydHuUAb.8mMK5uDXbx5jw78QgsJnTL5JJBUgFU3YRkyR011mijdpxECNw%3D%3D&grant_type=authorization_code&client_id=3MVG9cHH2bfKACZa1_BE2OoTcp9KoyeCf.P0TiR7Isig546SBQToycw8PvuM.0rfhplQ4MPaODC6b83qNI9Os&client_secret=369AA8D2A7568974FC59A510543236738C25092C5FC32750CC701AE4E17446DA&redirect_uri=https://login.salesforce.com/
+
+Response:
+{
+  "access_token":"00D5e0000012G2t!AQwAQNXjLx1f9UVLazQ1Ndf3O2w0TOIoFzyXaUEBg5Enk7Ch7CoKdaY_6UBfNLfitq8oAjYkhj_7NifOhro8lmhMQDNNOIZ4",
+  "refresh_token":"5Aep861ZBValxWWBUcNr.HztbDZdhl3I8RWYUTLLrLw3dmXkUeMV5WEh8YGp0dT5JD.oXmbHYsF33ICXLhKqxy6",
+  "signature":"HHPGN2wx/IzcLohD3tQdlP6fkrkB7O/rseUAtMiahCk=",
+  "scope":"refresh_token web api",
+  "instance_url":"https://connoisseurdesigns-dev-ed.my.salesforce.com",
+  "id":"https://login.salesforce.com/id/00D5e0000012G2tEAE/0055e000000gViKAAU",
+  "token_type":"Bearer",
+  "issued_at":"1621169208891"
+}
+
+************************************************************************
+
+Access Token (After getting Refresh token : for further api calls ):
+POST Request
+
+END POINT: https://connoisseurdesigns-dev-ed.my.salesforce.com/services/oauth2/token?grant_type=refresh_token&client_id=3MVG9cHH2bfKACZa1_BE2OoTcp9KoyeCf.P0TiR7Isig546SBQToycw8PvuM.0rfhplQ4MPaODC6b83qNI9Os&client_secret=369AA8D2A7568974FC59A510543236738C25092C5FC32750CC701AE4E17446DA&refresh_token=5Aep861ZBValxWWBUcNr.HztbDZdhl3I8RWYUTLLrLw3dmXkUeMV5WEh8YGp0dT5JD.oXmbHYsF33ICXLhKqxy6
+
+Response:
+{
+  "access_token":"00D5e0000012G2t!AQwAQNXjLx1f9UVLazQ1Ndf3O2w0TOIoFzyXaUEBg5Enk7Ch7CoKdaY_6UBfNLfitq8oAjYkhj_7NifOhro8lmhMQDNNOIZ4",
+  "signature":"qeARIzu4qyVXx6az6DJqN5HqUrPLnTWdmfns37kKifM=",
+  "scope":"refresh_token web api",
+  "instance_url":"https://connoisseurdesigns-dev-ed.my.salesforce.com",
+  "id":"https://login.salesforce.com/id/00D5e0000012G2tEAE/0055e000000gViKAAU",
+  "token_type":"Bearer",
+  "issued_at":"1621175234848"
+}
+
+************************************************************************
+
+Registration Salesforce REST API:
+
+POST Request: 
+End point: https://connoisseurdesigns-dev-ed.my.salesforce.com/services/apexrest/registration
+
+Headers:
+Authorization : Bearer<SPACE><ACCESS_TOKEN>
+Content-Type : application/json
+
+
+Body
+{
+  "fName":"Trevor",
+  "lName":"Travers",
+  "eventId":"{Salesforce Event ID}",
+  "email":"trevortravers@test.com"
+}
+
+
+Response:
+
+1. Registration Completed Successfully - With Reference Number : {SF Registration Id}
+2. You have registered already for this event - Your reference number  {is SF Registration Id}
+3. Please Enter 'Last Name' 'Email'
+4. Error Occurred in Salesforce - <ERROR_DESCRIPTION>
+
+************************************************************************
