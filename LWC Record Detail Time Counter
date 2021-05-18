@@ -1,0 +1,25 @@
+public class RecordDetailTimeCounter {
+    
+    @AuraEnabled
+    public static String totalMinutesFinal(Integer h,Integer m,Integer s,Integer ms,String optyId){
+        
+        if(h==null) h=0;
+        if(m==null) m=0;
+        if(s==null) s=0;
+        if(ms==null) ms=0;
+        
+        Opportunity opty=[select Id,Name,StageName,Minutes_Spent__c from Opportunity where Id=:optyId];
+        
+        Decimal minutesFromSeconds = s;
+        minutesFromSeconds = minutesFromSeconds.divide(60, 2);
+        
+        Decimal minutesFromHours=h*60;
+        Decimal totalMinutes=minutesFromSeconds+minutesFromHours+m;
+        
+        if(opty.Minutes_Spent__c==null) opty.Minutes_Spent__c=0.00;
+        opty.Minutes_Spent__c=totalMinutes+opty.Minutes_Spent__c;
+        update opty;
+        
+        return String.ValueOf(totalMinutes);
+    }
+}
