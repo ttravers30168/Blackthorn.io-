@@ -1,0 +1,66 @@
+@RestResource(urlMapping='/registration/*')
+global class RESTAPI_EventRegistration 
+{
+    @HttpPost
+    global static String doPost(String fName,String lName,String email,String eventId) 
+    {
+        String response='';
+        try
+        {
+            List<Registration__c> regList=[SELECT Id, Name, Event__c, Email__c, Last_Name__c, First_Name__c, Status__c, Attendee__c FROM Registration__c where Event__c =: eventId and Email__c =:email and Status__c='Complete'];
+            // If a registrant have registrated for same event already, we will send you have already registered for same event with the Registration ID
+            if(regList.size()>0)
+            {
+                response = 'You have registered already for this event - Your reference number  is '+regList[0].Name;
+            }
+            else
+            {
+            //For new Registration
+                Registration__c reg = new Registration__c();
+                if(lName!=null&&lName!=''&&email!=null&&email!='')
+                {
+                    reg.First_Name__c=fName!=null&&fName!=''?fName:'';
+                    reg.Last_Name__c=lName;
+                    reg.Email__c=email;
+                    reg.Event__c=eventId;
+                    reg.Status__c='Complete';
+                    // If contact is already there in the system with Same Email Id, we will associated the Registration with that contact or else create a new contact.
+                    List<Contact> con=[Select Id,Name from Contact where Email=:email];
+                    if(con!=null&&con.size()>0)
+                    {
+                        reg.Attendee__c=con[0].Id;
+                    }
+                    else
+                    {
+                        Contact c = new Contact();
+                        c.FirstName=fName!=null&&fName!=''?fName:'';
+                        c.LastName=lName;
+                        c.Email=email;
+                        insert c;
+                        reg.Attendee__c=c.Id;
+                    }
+                    
+                    insert reg;
+                    regList=[SELECT Id, Name, Event__c, Email__c, Last_Name__c, First_Name__c, Status__c, Attendee__c FROM Registration__c where Event__c =: eventId and Email__c =:email and Status__c='Complete'];
+                 // Once we create registration in SF, we send success message with registration Id
+                    response ='Registration Completed Successfully - With Reference Number : '+regList[0].Name;
+                }
+                else
+                {
+                    String errorString='';
+                    if(lName==null||lName=='')
+                        errorString =errorString+' \'Last Name\' ';
+                    if(email==null||email=='')
+                        errorString =errorString+' \'Email\' ';
+                    response = 'Please Enter '+errorString;
+                }
+                
+            }
+        }
+        Catch(Exception e)
+        {
+            response = 'Error Occurred in Salesforce - '+e;
+        }
+        return response;
+    }
+}
