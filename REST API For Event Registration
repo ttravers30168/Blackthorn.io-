@@ -1,3 +1,5 @@
+// This class is for creating a registration for an event through REST API
+
 @RestResource(urlMapping='/registration/*')
 global class RESTAPI_EventRegistration 
 {
